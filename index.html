@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>交易助理 Agent — 商品期货研究助手</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --bg2: #161b22;
+  --bg3: #1c2129;
+  --border: #2d333b;
+  --text: #e6edf3;
+  --text-dim: #8b949e;
+  --green: #3fb950;
+  --red: #f85149;
+  --yellow: #d29922;
+  --blue: #58a6ff;
+  --purple: #bc8cff;
+  --mono: 'SF Mono', 'Consolas', 'Courier New', monospace;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  line-height: 1.65;
+}
+.container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+/* ===== Hero ===== */
+.hero {
+  padding: 72px 0 48px;
+  border-bottom: 1px solid var(--border);
+  background: radial-gradient(ellipse 80% 60% at 50% -20%, rgba(88,166,255,0.08), transparent);
+}
+.hero .badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 20px;
+  font-family: var(--mono);
+}
+.hero h1 { font-size: 42px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 16px; }
+.hero h1 .accent { color: var(--blue); }
+.hero .sub { font-size: 17px; color: var(--text-dim); max-width: 640px; margin-bottom: 32px; }
+.stats { display: flex; gap: 16px; flex-wrap: wrap; }
+.stat {
+  flex: 1; min-width: 150px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+}
+.stat .num { font-size: 28px; font-weight: 700; color: var(--blue); font-family: var(--mono); }
+.stat .label { font-size: 13px; color: var(--text-dim); margin-top: 4px; }
+
+/* ===== Section ===== */
+.section { padding: 56px 0; border-bottom: 1px solid var(--border); }
+.section h2 { font-size: 26px; margin-bottom: 8px; }
+.section .lead { color: var(--text-dim); margin-bottom: 28px; font-size: 15px; }
+
+/* ===== Chat demo ===== */
+.chat-wrap {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+}
+.chat-head {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg3);
+}
+.chat-head .dot { width: 10px; height: 10px; border-radius: 50%; }
+.chat-head .dot.r { background: #f85149; }
+.chat-head .dot.y { background: #d29922; }
+.chat-head .dot.g { background: #3fb950; }
+.chat-head .title { font-size: 13px; color: var(--text-dim); margin-left: 8px; font-family: var(--mono); }
+.chat-body { padding: 20px; min-height: 380px; max-height: 480px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+.msg { max-width: 85%; padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+.msg.user { align-self: flex-end; background: #1f6feb; color: #fff; border-bottom-right-radius: 4px; }
+.msg.agent { align-self: flex-start; background: var(--bg3); border: 1px solid var(--border); border-bottom-left-radius: 4px; color: var(--text); }
+.msg.typing { color: var(--text-dim); font-style: italic; }
+.msg .tbl { font-family: var(--mono); font-size: 12.5px; display: block; margin-top: 6px; color: #c9d1d9; }
+.msg .hl { color: var(--yellow); font-weight: 600; }
+.msg .up { color: var(--red); font-weight: 600; }
+.msg .down { color: var(--green); font-weight: 600; }
+.chat-questions { padding: 14px 16px; border-top: 1px solid var(--border); background: var(--bg2); }
+.chat-questions .hint { font-size: 12px; color: var(--text-dim); margin-bottom: 10px; }
+.chip {
+  display: inline-block;
+  padding: 6px 14px;
+  margin: 0 8px 8px 0;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--bg3);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.chip:hover { border-color: var(--blue); color: var(--blue); }
+.chat-foot { padding: 12px 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-dim); background: var(--bg2); }
+.chat-foot code { font-family: var(--mono); background: var(--bg3); padding: 2px 6px; border-radius: 4px; }
+
+/* ===== Grid ===== */
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+}
+.card h3 { font-size: 16px; margin-bottom: 10px; }
+.card h3 .ico { margin-right: 6px; }
+.card p { font-size: 13.5px; color: var(--text-dim); }
+.card .example {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: #c9d1d9;
+  white-space: pre-wrap;
+}
+
+/* ===== Timeline ===== */
+.timeline { display: flex; flex-direction: column; gap: 0; position: relative; padding-left: 24px; }
+.timeline::before { content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 2px; background: var(--border); }
+.tl-item { position: relative; padding-bottom: 24px; }
+.tl-item::before {
+  content: '';
+  position: absolute; left: -24px; top: 6px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--bg2); border: 3px solid var(--blue);
+}
+.tl-item .time { font-family: var(--mono); font-size: 13px; color: var(--blue); font-weight: 600; }
+.tl-item .what { font-size: 14.5px; margin-top: 2px; }
+.tl-item .desc { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
+
+/* ===== Boundary ===== */
+.boundary { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.boundary .no, .boundary .yes { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 20px; }
+.boundary h3 { font-size: 15px; margin-bottom: 12px; }
+.boundary .no h3 { color: var(--red); }
+.boundary .yes h3 { color: var(--green); }
+.boundary li { font-size: 13.5px; color: var(--text-dim); margin: 0 0 8px 18px; }
+
+/* ===== Footer ===== */
+.footer { padding: 40px 0 60px; text-align: center; color: var(--text-dim); font-size: 13px; }
+.footer .tag { font-family: var(--mono); color: var(--text); }
+
+/* ===== Responsive ===== */
+@media (max-width: 720px) {
+  .hero h1 { font-size: 30px; }
+  .boundary { grid-template-columns: 1fr; }
+  .msg { max-width: 92%; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== HERO ===== -->
+<div class="hero">
+  <div class="container">
+    <span class="badge">Hermes Agent · trading-assistant · 演示页</span>
+    <h1>交易助理 <span class="accent">Agent</span></h1>
+    <p class="sub">一个国内商品期货交易研究助手：每天自动扫描 66 个品种的威科夫信号，自动生成早报与收盘总结，随叫随到做品种供需/成本/持仓深挖，还能把策略想法丢给它做回测验证。</p>
+    <div class="stats">
+      <div class="stat"><div class="num">66</div><div class="label">全品种每日扫描</div></div>
+      <div class="stat"><div class="num">15~20min</div><div class="label">收盘报告自动产出</div></div>
+      <div class="stat"><div class="num">5轮</div><div class="label">资金管理回测验证</div></div>
+      <div class="stat"><div class="num">0</div><div class="label">实盘权限·纯研究</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CHAT DEMO ===== -->
+<div class="section">
+  <div class="container">
+    <h2>🎮 模拟体验</h2>
+    <p class="lead">点击下方问题，体验与 Agent 的真实对话（内容为历史真实报告摘录，非实时数据）。</p>
+    <div class="chat-wrap">
+      <div class="chat-head">
+        <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+        <span class="title">trading-assistant @ feishu</span>
+      </div>
+      <div class="chat-body" id="chatBody"></div>
+      <div class="chat-questions">
+        <div class="hint">试试提问：</div>
+        <span class="chip" onclick="ask(0)">今天有什么威科夫信号？</span>
+        <span class="chip" onclick="ask(1)">分析一下棉花期货</span>
+        <span class="chip" onclick="ask(2)">红枣的供需和成本怎么样？</span>
+        <span class="chip" onclick="ask(3)">持仓量怎么验证？</span>
+        <span class="chip" onclick="ask(4)">两种止损方法哪个好？</span>
+        <span class="chip" onclick="ask(5)">你会做实盘交易吗？</span>
+      </div>
+      <div class="chat-foot">💡 纯前端演示 · 无后端 · 不接 API · 数据为 2026-08 历史报告摘录</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CAPABILITIES ===== -->
+<div class="section">
+  <div class="container">
+    <h2>⚙️ 核心能力</h2>
+    <p class="lead">四维分析框架（威科夫 + 拍卖理论 + 宏观 + 地缘）驱动的研究流水线。</p>
+    <div class="grid">
+      <div class="card">
+        <h3><span class="ico">📡</span>全品种威科夫扫描</h3>
+        <p>每日收盘后自动扫描 66 个品种，识别 Spring / UTAD / SOS / SOW / 测试失败等信号，按置信度分级，并写入策略跟踪表。</p>
+        <div class="example">▶ CY 棉纱 22730 LPSY 空单开仓 [中]
+▶ 减仓信号 13 个：BC/C/CJ/CY/EB/FU/...
+▶ 高极值 8 个：A/B/BC/CF/CU/CY/JM/LH/ZN
+▶ 策略8候选：ap2610 Spring(多) + cy2611 LPSY(空)</div>
+      </div>
+      <div class="card">
+        <h3><span class="ico">🔍</span>品种深度分析</h3>
+        <p>一句话指令触发：拉价格/库存/基差/期限结构/持仓，搜索消息面，测算成本，输出可执行操作框架。</p>
+        <div class="example">棉花 2026-08-09：
+基差 -9.3% 深贴水 | 库存去化 21.6%
+持仓 -42% → 移仓修正后真减仓 18%
+成本中枢 15000 | 现货 17843
+结论：中期偏多，追高需等持仓验证</div>
+      </div>
+      <div class="card">
+        <h3><span class="ico">🧪</span>策略回测验证</h3>
+        <p>策略改动直接跑 probe32 AB 回测（500万初始资金/5%风险），用 Sharpe/胜率/盈亏比/回撤说话，拒绝空谈。</p>
+        <div class="example">5轮资金管理回测：
+基准(结构止损+3R) Sharpe 1.56 全胜
+方法2(小止损+重试) 从未赢过
+结论：止损位置的市场逻辑决定一切</div>
+      </div>
+      <div class="card">
+        <h3><span class="ico">⏰</span>自动早报 & 收盘总结</h3>
+        <p>工作日 09:30 早报、19:30 收盘扫描自动生成，15 分钟内投递飞书；预判次日验证、消息面评估、期权成本对比全包含。</p>
+        <div class="example">08-14 收盘总结（14.5KB，20:59 生成）
+▶ AG BC 三幕结构完成但 OI 未坐实
+▶ AU 破 950 转弱确认（价跌仓减）
+▶ 20:30 零售 -0.6% → 加息预期瓦解
+▶ 次日预判验证表 7/7 兑现</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== WORKFLOW ===== -->
+<div class="section">
+  <div class="container">
+    <h2>🕐 一天的工作流</h2>
+    <p class="lead">全自动定时任务，生成与投递解耦（脚本投递，杜绝 LLM 跑偏）。</p>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="time">09:30</div>
+        <div class="what">早盘简报自动生成</div>
+        <div class="desc">持仓/隔夜新闻/操作要点 → 写入本地文件 → 15分钟内投递飞书</div>
+      </div>
+      <div class="tl-item">
+        <div class="time">盘中（随时）</div>
+        <div class="what">对话式研究</div>
+        <div class="desc">"分析一下XX" → 30分钟内产出深度报告（数据+消息+成本+操作框架）</div>
+      </div>
+      <div class="tl-item">
+        <div class="time">19:30</div>
+        <div class="what">收盘全品种扫描</div>
+        <div class="desc">wyckoff_scanner 跑 66 品种 → LLM 生成七部分收盘总结 → 脚本投递</div>
+      </div>
+      <div class="tl-item">
+        <div class="time">21:00 前</div>
+        <div class="what">收盘总结投递完成</div>
+        <div class="desc">信号汇总 / watchlist / 预判验证 / 原油黄金 / 极值 / 期权 / 风险提示</div>
+      </div>
+      <div class="tl-item">
+        <div class="time">任意时刻</div>
+        <div class="what">策略回测 & 笔记沉淀</div>
+        <div class="desc">代码改动跑 AB 回测对比；分析结论自动存档 D:\note\trade\交易助理\</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== BOUNDARY ===== -->
+<div class="section">
+  <div class="container">
+    <h2>🚧 能力边界</h2>
+    <p class="lead">坦诚说明：什么能做、什么不做、什么必须人工介入。</p>
+    <div class="boundary">
+      <div class="yes">
+        <h3>✓ 它能做</h3>
+        <ul>
+          <li>全品种威科夫信号识别与跟踪</li>
+          <li>品种供需/库存/基差/持仓深度分析</li>
+          <li>生产成本测算与利润覆盖判断</li>
+          <li>策略回测验证（AB 对比，数据说话）</li>
+          <li>定时报告生成与自动投递</li>
+          <li>交易笔记与信号手册沉淀</li>
+        </ul>
+      </div>
+      <div class="no">
+        <h3>✗ 它不做 / 做不了</h3>
+        <ul>
+          <li>实盘下单、资金操作（零交易权限）</li>
+          <li>保证收益或投资建议（研究仅供参考）</li>
+          <li>实时盘中盯盘（定时快照+收盘全扫）</li>
+          <li>消息面 100% 覆盖（搜索引擎反爬时有缺口）</li>
+          <li>模型/网络故障时的自动恢复（需人工触发补跑）</li>
+        </ul>
+      </div>
+    </div>
+    <p style="margin-top:20px;font-size:13px;color:var(--text-dim);">
+      ⚠️ 需要人工介入的情况：数据接口异常时报告会标注缺口；上游模型不稳定时任务可能失败需补跑；极端行情下信号需人工复核。
+    </p>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<div class="footer">
+  <div class="container">
+    <div class="tag">交易助理 Agent · Hermes Agent powered</div>
+    <p style="margin-top:8px;">本页面为公开演示，不含任何实时数据、API 密钥或交易权限。<br>所有内容仅供学习与讨论，不构成投资建议。期货杠杆高，风险自担。</p>
+  </div>
+</div>
+
+<script>
+const DEMO = [
+  {
+    q: "今天有什么威科夫信号？",
+    a: "# 📊 收盘扫描总结 — 2026-08-14（周五）\n\n▶ 当日入场信号 1 个：\n  CY 棉纱 22730 LPSY 空单开仓 [中置信度]\n  SOW 后缩量收红反弹、不破 SOW 高 22940\n\n▶ 减仓信号 13 个：\n  BC / C 2226 / CJ / CY / EB / FU / HC / LG / LU / NI 127040 / NR / PK / RU 17790\n\n▶ 加仓信号：无\n\n▶ 高极值 8 个：A / B / BC / CF / CU / CY / JM / LH / ZN\n▶ 低极值 9 个：AO / C / FG(600天最低) / NI / SA / SH / SP / UR / V\n\n▶ 策略8候选：\n  ap2610 Spring（07-28 多，待确认）\n  cy2611 LPSY（08-14 空，新增）"
+  },
+  {
+    q: "分析一下棉花期货",
+    a: "# 棉花期货分析 — 2026-08-09\n\n【价格】CF2609 收 16210（+3.4% 连涨4天）\n  近一年第95百分位 | 区间 12585~16715\n\n【结构】期限结构远月升水 +2.7%\n  基差 = 现货17870 - 期货16210\n         = -1660（-9.3% 深度贴水）\n\n【供应】抛储8000吨/日 100%成交加价1000+\n  商业库存去化21.6%，保税区55.6万吨\n  新疆高温→减产预期升温\n\n【持仓】⚠️ 7月至今 -42%（含移仓修正：\n  2609 -23.8万 + 2701 +9.6万 = 真减仓-18%）\n\n【成本】中枢 14000~16000，现货17843 可覆盖\n\n【结论】中期偏多（减产未证伪+深贴水），\n  短期持仓减+高位不宜追；\n  回踩15800-16000看持仓企稳再动手"
+  },
+  {
+    q: "红枣的供需和成本怎么样？",
+    a: "# 红枣期货分析 — 2026-08-11\n\n【价格】CJ2701 收 8325（近一年第6百分位）\n  8/6 放量暴涨 +9.7%（7610→8345）\n\n【供应】2025/26 产量58万吨（同比-22.7%）\n  结转库存36万吨（高位）\n  新季丰产预期强化（积温偏多97℃·d）\n\n【库存】仓单8436手≈4.2万吨 | 去化缓慢\n  现货沧州特级 8.71元/公斤（近4年低位）\n\n【成本】新疆灰枣 6000~10000元/吨（中枢8000）\n  期货8325 ≈ 成本中枢（勉强覆盖）\n  现货一级7600 < 成本（亏损边缘）\n\n【结论】偏空磨底（评分 -3）\n  短期7600-8500震荡，反弹难破9500-10000\n  冬季旺季才是修复窗口，现在不是进攻点"
+  },
+  {
+    q: "持仓量怎么验证？",
+    a: "持仓量验证铁律（四维框架核心）：\n\n▶ 价涨仓增 = 多头加仓（真吸筹，可信）\n▶ 价跌仓增 = 空头加仓（真派发/压力）\n▶ 价涨仓减 = 空头回补/获利离场（根基不牢）\n▶ 价跌仓减 = 多头止损/空头止盈（抛压释放）\n\n【案例】08-14 SC 原油：\n  556.2 +0.49%，OI +0.34万\n  → 价涨仓增 = 多头主动加仓 🟢 企稳转强\n\n【案例】08-14 AU 沪金：\n  943 -1.03%，OI -0.42万\n  → 价跌仓减 = 转弱确认但减仓与宏观利多拉锯\n\n【进阶】分析主力合约必须看全合约合计：\n  单看主力会误判移仓为离场\n  （棉花案例：-42% → 移仓修正后真减仓-18%）"
+  },
+  {
+    q: "两种止损方法哪个好？",
+    a: "# 资金管理 AB 回测结论（2026-08-07）\n\n【问题】方法1（止损8000/止盈10000，一次机会）\n  vs 方法2（止损800/止盈10000，最多10次重试）\n\n【结果】66品种 × 15分钟 × 2020-2026，500万资金：\n\n| 策略 | 总盈亏 | Sharpe | 胜率 |\n|------|--------|--------|------|\n| 基准(结构止损+3R) | +2410万 | 1.56 | 52.1% |\n| 方法1(固定金额)  | +597万  | 0.78 | 29.1% |\n| 方法2(小止损重试)| +466万  | 0.55 | 29.1% |\n\n【结论】基准五战五胜。\n止损位置的市场逻辑（日线结构/ATR）是决定性的\n固定金额或拍脑袋N根K都不行；\n方法2的\"重试\"在被证伪方向上反复试错=更差"
+  },
+  {
+    q: "你会做实盘交易吗？",
+    a: "❌ 不会，也永远不会。\n\n我是纯研究型 Agent：\n\n✓ 能做：扫描信号、深度分析、策略回测、\n  报告生成、笔记沉淀\n\n✗ 不做：实盘下单、资金操作、收益承诺\n\n所有输出均为框架性研究参考，\n不构成投资建议。期货杠杆高、\n可能亏光本金，仓位与风控由您自行负责。\n\n我的价值是把数据、逻辑、验证做完，\n把判断空间留给人。"
+  }
+];
+
+const chatBody = document.getElementById('chatBody');
+let typing = false;
+
+function addMsg(cls, text) {
+  const div = document.createElement('div');
+  div.className = 'msg ' + cls;
+  div.textContent = text;
+  chatBody.appendChild(div);
+  chatBody.scrollTop = chatBody.scrollHeight;
+  return div;
+}
+
+function typeOut(el, text, i, cb) {
+  if (i >= text.length) { typing = false; cb && cb(); return; }
+  const step = text[i] === '\n' ? 1 : 2;
+  el.textContent = text.slice(0, i + step);
+  chatBody.scrollTop = chatBody.scrollHeight;
+  setTimeout(() => typeOut(el, text, i + step, cb), 8);
+}
+
+function ask(idx) {
+  if (typing) return;
+  const item = DEMO[idx];
+  addMsg('user', item.q);
+  const aEl = addMsg('agent', '');
+  typing = true;
+  setTimeout(() => typeOut(aEl, item.a, 0, null), 400);
+}
+
+// 开场消息
+setTimeout(() => {
+  const el = addMsg('agent', '👋 你好，我是交易助理 Agent。\n\n我可以扫描全品种威科夫信号、深度分析品种供需/成本/持仓、跑策略回测，每天自动出早报和收盘总结。\n\n点击下方问题体验一下？');
+}, 300);
+</script>
+</body>
+</html>
